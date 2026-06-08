@@ -194,7 +194,7 @@
 
       async function cargarComentarios() {
         try {
-          const res = await fetch('http://localhost:3000/api/comentarios');
+          const res = await fetch('/api/comentarios'); // 👈 Ruta relativa corregida
           const datos = await res.json();
           const lista = document.getElementById('lista-comentarios');
           if (datos.length === 0) {
@@ -226,9 +226,12 @@
         }
         estado.textContent = 'Enviando...';
         try {
-          const res = await fetch('http://localhost:3000/api/comentarios', {
+          const res = await fetch('/api/comentarios', { // 👈 Ruta relativa corregida
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${localStorage.getItem('token')}` // 👈 Token incluido
+            },
             body: JSON.stringify({ nombre, mensaje })
           });
           if (res.ok) {
