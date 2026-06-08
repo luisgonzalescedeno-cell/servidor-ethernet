@@ -23,6 +23,7 @@
       <a href="#quiz">Quiz</a>
       <a href="#comentarios">Comentarios</a>
       <a href="simulador.html">🎮 Simulador</a>
+      <a href="#" id="nav-usuario" onclick="cerrarSesion()"></a>
     </nav>
 
     <section id="materiales">
@@ -156,12 +157,19 @@
     <section id="comentarios">
       <h2>💬 Comentarios</h2>
       <div id="comentarios-container">
-        <div id="form-comentario">
-          <input type="text" id="input-nombre" placeholder="Tu nombre" />
+
+        <div id="form-comentario" style="display:none">
+          <p id="bienvenida-usuario" style="color:var(--azul);font-weight:700;margin-bottom:15px"></p>
           <textarea id="input-mensaje" placeholder="Escribe tu comentario..." rows="4"></textarea>
           <button onclick="enviarComentario()">Enviar comentario</button>
           <p id="mensaje-estado"></p>
         </div>
+
+        <div id="no-sesion" style="text-align:center;padding:30px;background:var(--card);border-radius:16px;box-shadow:0 4px 20px var(--sombra);margin-bottom:30px">
+          <p style="font-size:18px;margin-bottom:15px">Inicia sesión para comentar 🔐</p>
+          <a href="login.html" style="background:var(--azul);color:white;padding:12px 30px;border-radius:20px;text-decoration:none;font-weight:700">Iniciar sesión / Registrarse</a>
+        </div>
+
         <div id="lista-comentarios">
           <p style="text-align:center;color:var(--text-soft)">Cargando comentarios...</p>
         </div>
@@ -170,6 +178,9 @@
 
     <footer>
       <p>© 2026 Guía de Redes — Ponchado de Cable Ethernet</p>
+      <p style="margin-top:10px;font-size:13px;opacity:0.8">
+        👁️ Visitas: <span id="contador">...</span>
+      </p>
     </footer>
 
     <script>
@@ -184,58 +195,73 @@
       }, { threshold: 0.1 });
       document.querySelectorAll('.animar').forEach(el => observer.observe(el));
 
+      fetch('https://api.countapi.xyz/hit/luisgonzalescedeno-cell.github.io/guia-ethernet')
+        .then(r => r.json()).then(d => {
+          document.getElementById('contador').textContent = d.value;
+        }).catch(() => { document.getElementById('contador').textContent = '—'; });
+
+      // SESIÓN
+      const token = localStorage.getItem('token');
+      const nombre = localStorage.getItem('nombre');
+
+      if (token && nombre) {
+        document.getElementById('form-comentario').style.display = 'block';
+        document.getElementById('no-sesion').style.display = 'none';
+        document.getElementById('bienvenida-usuario').textContent = `Hola ${nombre} 👋`;
+        document.getElementById('nav-usuario').textContent = `👤 ${nombre} (salir)`;
+      } else {
+        document.getElementById('nav-usuario').style.display = 'none';
+      }
+
+      function cerrarSesion() {
+        localStorage.removeItem('token');
+        localStorage.removeItem('nombre');
+        window.location.reload();
+      }
+
       async function cargarComentarios() {
         try {
           const res = await fetch('/api/comentarios');
           const datos = await res.json();
           const lista = document.getElementById('lista-comentarios');
-          
-          if (!datos || datos.length === 0) {
+          if (datos.length === 0) {
             lista.innerHTML = '<p style="text-align:center;color:var(--text-soft)">Sé el primero en comentar 💬</p>';
             return;
           }
-          
-          lista.innerHTML = datos.map(c => {
-            // Validación para asegurar que la fecha de Postgres no rompa el diseño
-            const fechaValida = c.fecha ? new Date(c.fecha).toLocaleDateString('es-ES') : 'Reciente';
-            return `
-              <div class="comentario-card">
-                <div class="comentario-header">
-                  <span class="comentario-nombre">👤 ${c.nombre}</span>
-                  <span class="comentario-fecha">${fechaValida}</span>
-                </div>
-                <p class="comentario-mensaje">${c.mensaje}</p>
-              </div>`;
-          }).join('');
+          lista.innerHTML = datos.map(c => `
+            <div class="comentario-card">
+              <div class="comentario-header">
+                <span class="comentario-nombre">👤 ${c.nombre}</span>
+                <span class="comentario-fecha">${new Date(c.created_at).toLocaleDateString('es-ES')}</span>
+              </div>
+              <p class="comentario-mensaje">${c.mensaje}</p>
+            </div>`).join('');
         } catch(e) {
-          console.error("Error en frontend:", e);
           document.getElementById('lista-comentarios').innerHTML =
             '<p style="text-align:center;color:#f44336">Error cargando comentarios</p>';
         }
       }
 
       async function enviarComentario() {
-        const nombre = document.getElementById('input-nombre').value.trim();
         const mensaje = document.getElementById('input-mensaje').value.trim();
         const estado = document.getElementById('mensaje-estado');
-        
-        if (!nombre || !mensaje) {
-          estado.textContent = '⚠️ Por favor completa tu nombre y comentario.';
+        if (!mensaje) {
+          estado.textContent = '⚠️ Escribe un comentario';
           estado.style.color = '#f44336'; return;
         }
-        
         estado.textContent = 'Enviando...';
         try {
           const res = await fetch('/api/comentarios', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ nombre, mensaje })
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ mensaje })
           });
-          
           if (res.ok) {
             estado.textContent = '✅ ¡Comentario enviado!';
             estado.style.color = '#4caf50';
-            document.getElementById('input-nombre').value = '';
             document.getElementById('input-mensaje').value = '';
             cargarComentarios();
           } else {
@@ -248,7 +274,6 @@
         }
       }
 
-      // Llamada inicial para cargar los comentarios al entrar en la web
       cargarComentarios();
 
       const preguntas = [
