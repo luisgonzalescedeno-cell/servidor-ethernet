@@ -4,7 +4,8 @@ const { Pool } = require('pg');
 const app = express();
 
 app.use(express.json());
-app.use(express.static('public'));
+// Cambiado para servir los archivos desde la raíz del proyecto
+app.use(express.static(__dirname));
 
 // Configuración de la conexión a PostgreSQL usando la variable de Railway
 const pool = new Pool({
@@ -12,7 +13,7 @@ const pool = new Pool({
   ssl: process.env.DATABASE_URL ? { rejectUnauthorized: false } : false
 });
 
-// Inicializar la tabla en PostgreSQL (Equivalente a tu db.exec)
+// Inicializar la tabla en PostgreSQL (Equivalente a tu antiguo db.exec)
 const initDb = async () => {
   try {
     await pool.query(`
