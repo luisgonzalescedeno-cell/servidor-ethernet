@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <title>Login — Guía Ethernet</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+
+    <header>
+      <h1>🔌 Guía de Ponchado</h1>
+      <p>Inicia sesión o regístrate para comentar</p>
+    </header>
+
+    <section>
+      <div class="auth-container">
+
+        <div class="tabs">
+          <button class="tab active" onclick="showTab('login', this)">Iniciar sesión</button>
+          <button class="tab" onclick="showTab('registro', this)">Registrarse</button>
+        </div>
+
+        <!-- LOGIN -->
+        <div class="panel active" id="login">
+          <div class="sim-card">
+            <h3 style="color:var(--azul);margin-bottom:1.5rem">Bienvenido de vuelta 👋</h3>
+            <input type="email" id="login-email" placeholder="Tu email" />
+            <input type="password" id="login-password" placeholder="Tu contraseña" />
+            <button class="sim-btn" onclick="iniciarSesion()">Iniciar sesión</button>
+            <p id="login-estado" style="margin-top:10px;font-size:14px"></p>
+          </div>
+        </div>
+
+        <!-- REGISTRO -->
+        <div class="panel" id="registro">
+          <div class="sim-card">
+            <h3 style="color:var(--azul);margin-bottom:1.5rem">Crear cuenta 🚀</h3>
+            <input type="text" id="reg-nombre" placeholder="Tu nombre" />
+            <input type="email" id="reg-email" placeholder="Tu email" />
+            <input type="password" id="reg-password" placeholder="Tu contraseña" />
+            <button class="sim-btn" onclick="registrarse()">Crear cuenta</button>
+            <p id="reg-estado" style="margin-top:10px;font-size:14px"></p>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <footer>
+      <p>© 2026 Guía de Redes — Ponchado de Cable Ethernet</p>
+    </footer>
+
+    <script>
+      function showTab(id, btn) {
+        document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+        btn.classList.add('active');
+      }
+
+      async function iniciarSesion() {
+        const email = document.getElementById('login-email').value.trim();
+        const password = document.getElementById('login-password').value.trim();
+        const estado = document.getElementById('login-estado');
+
+        if (!email || !password) {
+          estado.textContent = '⚠️ Completa todos los campos';
+          estado.style.color = '#f44336'; return;
+        }
+
+        estado.textContent = 'Iniciando sesión...';
+        estado.style.color = '#777';
+
+        try {
+          const res = await fetch('/api/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password })
+          });
+          const data = await res.json();
+          if (res.ok) {
+            localStorage.setItem('token', data.token);
+            localStorage.setItem('nombre', data.nombre);
+            estado.textContent = `✅ Bienvenido ${data.nombre}!`;
+            estado.style.color = '#4caf50';
+            setTimeout(() => window.location.href = 'index.html', 1000);
+          } else {
+            estado.textContent = `❌ ${data.error}`;
+            estado.style.color = '#f44336';
+          }
+        } catch(e) {
+          estado.textContent = '❌ Error de conexión';
+          estado.style.color = '#f44336';
+        }
+      }
+
+      async function registrarse() {
+        const nombre = document.getElementById('reg-nombre').value.trim();
+        const email = document.getElementById('reg-email').value.trim();
+        const password = document.getElementById('reg-password').value.trim();
+        const estado = document.getElementById('reg-estado');
+
+        if (!nombre || !email || !password) {
+          estado.textContent = '⚠️ Completa todos los campos';
+          estado.style.color = '#f44336'; return;
+        }
+
+        estado.textContent = 'Creando cuenta...';
+        estado.style.color = '#777';
+
+        try {
+          const res = await fetch('/api/registro', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ nombre, email, password })
+          });
+          const data = await res.json();
+          if (res.ok) {
+            localStorage.setItem('token', data.token);
+            localStorage.setItem('nombre', data.nombre);
+            estado.textContent = `✅ Cuenta creada! Bienvenido ${data.nombre}!`;
+            estado.style.color = '#4caf50';
+            setTimeout(() => window.location.href = 'index.html', 1000);
+          } else {
+            estado.textContent = `❌ ${data.error}`;
+            estado.style.color = '#f44336';
+          }
+        } catch(e) {
+          estado.textContent = '❌ Error de conexión';
+          estado.style.color = '#f44336';
+        }
+      }
+    </script>
+
+  </body>
+</html>
