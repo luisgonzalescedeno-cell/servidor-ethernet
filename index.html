@@ -5,6 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
+    <style>
+      /* --- ESTILOS COMPATIBLES PARA EL CHATBOT FLOTANTE --- */
+      .chat-btn { position: fixed; bottom: 20px; right: 20px; background: #2563eb; color: white; border: none; border-radius: 50%; width: 60px; height: 60px; font-size: 28px; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.3); z-index: 1000; transition: transform 0.2s; }
+      .chat-btn:hover { transform: scale(1.1); }
+      .chat-container { position: fixed; bottom: 90px; right: 20px; width: 350px; height: 450px; background: var(--card, #fff); border-radius: 15px; box-shadow: 0 5px 25px rgba(0,0,0,0.2); display: none; flex-direction: column; overflow: hidden; z-index: 1000; border: 1px solid rgba(0,0,0,0.1); }
+      .chat-header { background: #2563eb; color: white; padding: 15px; font-weight: bold; display: flex; justify-content: space-between; align-items: center; }
+      .chat-messages { flex: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; font-size: 14px; background: var(--background, #f9fafb); }
+      .msg { padding: 10px 14px; border-radius: 12px; max-width: 80%; word-wrap: break-word; }
+      .msg.user { background: #2563eb; color: white; align-self: flex-end; border-bottom-right-radius: 2px; }
+      .msg.bot { background: #e5e7eb; color: #1f2937; align-self: flex-start; border-bottom-left-radius: 2px; }
+      .chat-input-area { display: flex; border-top: 1px solid rgba(0,0,0,0.1); padding: 10px; background: var(--card, #fff); }
+      .chat-input-area input { flex: 1; padding: 10px; border: 1px solid #d1d5db; border-radius: 20px; outline: none; font-size: 14px; color: #1f2937; background: #fff; }
+      .chat-input-area button { background: #2563eb; color: white; border: none; padding: 0 15px; margin-left: 5px; border-radius: 20px; cursor: pointer; font-weight: bold; }
+    </style>
   </head>
   <body>
 
@@ -176,6 +190,21 @@
       </div>
     </section>
 
+    <button class="chat-btn" onclick="toggleChat()">🤖</button>
+    <div class="chat-container" id="chatContainer">
+      <div class="chat-header">
+        <span>Asistente de Ponchado IA</span>
+        <button onclick="toggleChat()" style="background:none; border:none; color:white; font-size:18px; cursor:pointer;">✕</button>
+      </div>
+      <div class="chat-messages" id="chatMessages">
+        <div class="msg bot">¡Hola! Soy tu asistente virtual. Pregúntame lo que quieras sobre el ponchado de cables, materiales o los códigos de colores T568A y T568B. 🔌</div>
+      </div>
+      <div class="chat-input-area">
+        <input type="text" id="chatInput" placeholder="Ej: ¿Qué pasa si mezclo el estándar A y B?" onkeypress="if(event.key === 'Enter') enviarMensajeIA()" />
+        <button onclick="enviarMensajeIA()">Enviar</button>
+      </div>
+    </div>
+
     <footer>
       <p>© 2026 Guía de Redes — Ponchado de Cable Ethernet</p>
       <p style="margin-top:10px;font-size:13px;opacity:0.8">
@@ -190,6 +219,45 @@
           document.body.classList.contains('dark') ? '☀️' : '🌙';
       }
 
+      // --- FUNCIONES DEL CHATBOT ---
+      function toggleChat() {
+        const chat = document.getElementById('chatContainer');
+        chat.style.display = chat.style.display === 'flex' ? 'none' : 'flex';
+      }
+
+      async function enviarMensajeIA() {
+        const input = document.getElementById('chatInput');
+        const mensaje = input.value.trim();
+        if (!mensaje) return;
+
+        const box = document.getElementById('chatMessages');
+        
+        // Renderizar mensaje del usuario
+        box.innerHTML += `<div class="msg user">${mensaje}</div>`;
+        input.value = '';
+        box.scrollTop = box.scrollHeight;
+
+        // Marcador de carga simulado
+        const loadingId = 'load-' + Date.now();
+        box.innerHTML += `<div class="msg bot" id="${loadingId}">Pensando... ⚡</div>`;
+        box.scrollTop = box.scrollHeight;
+
+        try {
+          const res = await fetch('/api/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ mensaje })
+          });
+          const data = await res.json();
+          
+          document.getElementById(loadingId).innerText = data.respuesta || data.error;
+        } catch (e) {
+          document.getElementById(loadingId).innerText = "❌ Hubo un error de conexión con el asistente.";
+        }
+        box.scrollTop = box.scrollHeight;
+      }
+
+      // --- SISTEMA DE ANIMACIONES Y CONTADOR ---
       const observer = new IntersectionObserver((entries) => {
         entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
       }, { threshold: 0.1 });
@@ -200,7 +268,7 @@
           document.getElementById('contador').textContent = d.value;
         }).catch(() => { document.getElementById('contador').textContent = '—'; });
 
-      // SESIÓN
+      // --- AUTENTICACIÓN Y SESIÓN COMPATIBLE SUPABASE ---
       const token = localStorage.getItem('token');
       const nombre = localStorage.getItem('nombre');
 
@@ -219,6 +287,7 @@
         window.location.reload();
       }
 
+      // --- CONTROL DE COMENTARIOS ---
       async function cargarComentarios() {
         try {
           const res = await fetch('/api/comentarios');
@@ -276,16 +345,18 @@
 
       cargarComentarios();
 
+      // --- CÓDIGO DEL QUIZ ---
       const preguntas = [
         { pregunta: "¿Cuál es el estándar más usado para ponchar cables Ethernet?", opciones: ["T568A","T568B","T568C","RJ11"], correcta: 1 },
         { pregunta: "¿Cuántos pines tiene un conector RJ45?", opciones: ["4","6","8","12"], correcta: 2 },
         { pregunta: "¿Qué herramienta se usa para fijar el conector RJ45?", opciones: ["Pelacables","Ponchadora","Destornillador","Multímetro"], correcta: 1 },
-        { pregunta: "¿Cuántos pares trenzados tiene un cable UTP Cat6?", opciones: ["2","3","4","6"], correcta: 2 },
+        { pregunta: "@Cuántos pares trenzados tiene un cable UTP Cat6?", opciones: ["2","3","4","6"], correcta: 2 },
         { pregunta: "¿Qué dispositivo se usa para verificar que el cable quedó bien ponchado?", opciones: ["Multímetro","Tester de red","Osciloscopio","Switch"], correcta: 1 }
       ];
 
       let preguntaActual = 0, puntaje = 0;
 
+      // ... [Manteniendo tus funciones nativas mostrarPregunta, verificar, siguientePregunta, mostrarResultadoFinal y reiniciarQuiz exactamente igual]
       function mostrarPregunta() {
         const p = preguntas[preguntaActual];
         document.getElementById('pregunta').innerHTML = `
