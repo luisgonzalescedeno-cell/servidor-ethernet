@@ -23,7 +23,6 @@
       <a href="#quiz">Quiz</a>
       <a href="#comentarios">Comentarios</a>
       <a href="simulador.html">🎮 Simulador</a>
-      <a href="#" id="nav-usuario" onclick="cerrarSesion()"></a>
     </nav>
 
     <section id="materiales">
@@ -157,19 +156,12 @@
     <section id="comentarios">
       <h2>💬 Comentarios</h2>
       <div id="comentarios-container">
-
-        <div id="form-comentario" style="display:none">
-          <p id="bienvenida-usuario" style="color:var(--azul);font-weight:700;margin-bottom:15px"></p>
+        <div id="form-comentario">
+          <input type="text" id="input-nombre" placeholder="Tu nombre">
           <textarea id="input-mensaje" placeholder="Escribe tu comentario..." rows="4"></textarea>
           <button onclick="enviarComentario()">Enviar comentario</button>
           <p id="mensaje-estado"></p>
         </div>
-
-        <div id="no-sesion" style="text-align:center;padding:30px;background:var(--card);border-radius:16px;box-shadow:0 4px 20px var(--sombra);margin-bottom:30px">
-          <p style="font-size:18px;margin-bottom:15px">Inicia sesión para comentar 🔐</p>
-          <a href="login.html" style="background:var(--azul);color:white;padding:12px 30px;border-radius:20px;text-decoration:none;font-weight:700">Iniciar sesión / Registrarse</a>
-        </div>
-
         <div id="lista-comentarios">
           <p style="text-align:center;color:var(--text-soft)">Cargando comentarios...</p>
         </div>
@@ -200,28 +192,9 @@
           document.getElementById('contador').textContent = d.value;
         }).catch(() => { document.getElementById('contador').textContent = '—'; });
 
-      // SESIÓN
-      const token = localStorage.getItem('token');
-      const nombre = localStorage.getItem('nombre');
-
-      if (token && nombre) {
-        document.getElementById('form-comentario').style.display = 'block';
-        document.getElementById('no-sesion').style.display = 'none';
-        document.getElementById('bienvenida-usuario').textContent = `Hola ${nombre} 👋`;
-        document.getElementById('nav-usuario').textContent = `👤 ${nombre} (salir)`;
-      } else {
-        document.getElementById('nav-usuario').style.display = 'none';
-      }
-
-      function cerrarSesion() {
-        localStorage.removeItem('token');
-        localStorage.removeItem('nombre');
-        window.location.reload();
-      }
-
       async function cargarComentarios() {
         try {
-          const res = await fetch('/api/comentarios');
+          const res = await fetch('http://localhost:3000/api/comentarios');
           const datos = await res.json();
           const lista = document.getElementById('lista-comentarios');
           if (datos.length === 0) {
@@ -243,21 +216,20 @@
       }
 
       async function enviarComentario() {
+        const nombre = document.getElementById('input-nombre').value.trim();
         const mensaje = document.getElementById('input-mensaje').value.trim();
         const estado = document.getElementById('mensaje-estado');
-        if (!mensaje) {
-          estado.textContent = '⚠️ Escribe un comentario';
+        
+        if (!nombre || !mensaje) {
+          estado.textContent = '⚠️ Todos los campos son obligatorios';
           estado.style.color = '#f44336'; return;
         }
         estado.textContent = 'Enviando...';
         try {
-          const res = await fetch('/api/comentarios', {
+          const res = await fetch('http://localhost:3000/api/comentarios', {
             method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${token}`
-            },
-            body: JSON.stringify({ mensaje })
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ nombre, mensaje })
           });
           if (res.ok) {
             estado.textContent = '✅ ¡Comentario enviado!';
@@ -278,7 +250,7 @@
 
       const preguntas = [
         { pregunta: "¿Cuál es el estándar más usado para ponchar cables Ethernet?", opciones: ["T568A","T568B","T568C","RJ11"], correcta: 1 },
-        { pregunta: "@Cuántos pines tiene un conector RJ45?", opciones: ["4","6","8","12"], correcta: 2 },
+        { pregunta: "¿Cuántos pines tiene un conector RJ45?", opciones: ["4","6","8","12"], correcta: 2 },
         { pregunta: "¿Qué herramienta se usa para fijar el conector RJ45?", opciones: ["Pelacables","Ponchadora","Destornillador","Multímetro"], correcta: 1 },
         { pregunta: "¿Cuántos pares trenzados tiene un cable UTP Cat6?", opciones: ["2","3","4","6"], correcta: 2 },
         { pregunta: "¿Qué dispositivo se usa para verificar que el cable quedó bien ponchado?", opciones: ["Multímetro","Tester de red","Osciloscopio","Switch"], correcta: 1 }
