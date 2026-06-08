@@ -1,8 +1,6 @@
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const { Anthropic } = require('@anthropic-ai/sdk');
-const path = require('path'); // 👈 Requerido para manejar rutas de archivos
 
 const app = express();
 const SECRET = 'guia-ethernet-secret-2026';
@@ -10,16 +8,9 @@ const SECRET = 'guia-ethernet-secret-2026';
 app.use(express.json());
 app.use(express.static(__dirname));
 
-// Configuración de Supabase
 const SUPABASE_URL = 'https://abaprnjnlwhqpmwelhyg.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFiYXBybmpubHdocXBtd2VsaHlnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA4NDY3MjAsImV4cCI6MjA5NjQyMjcyMH0.rRJFGX0NyWEapXKZklKwyqj_go0iJUUn0nVZa5AzoB8';
 
-// Configuración de Claude IA
-const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY || 'dummy-key', 
-});
-
-// Middleware de autenticación
 function verificarToken(req, res, next) {
   const auth = req.headers['authorization'];
   if (!auth) return res.status(401).json({ error: 'No autorizado' });
@@ -32,12 +23,6 @@ function verificarToken(req, res, next) {
   }
 }
 
-// 👈 NUEVA RUTA: Fuerza a Railway a servir tu página principal en la raíz
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'index.html'));
-});
-
-// --- API: REGISTRO ---
 app.post('/api/registro', async (req, res) => {
   const { nombre, email, password } = req.body;
   if (!nombre || !email || !password)
@@ -62,7 +47,6 @@ app.post('/api/registro', async (req, res) => {
   res.json({ ok: true, token, nombre });
 });
 
-// --- API: INICIO DE SESIÓN ---
 app.post('/api/login', async (req, res) => {
   const { email, password } = req.body;
   if (!email || !password)
@@ -81,20 +65,14 @@ app.post('/api/login', async (req, res) => {
   res.json({ ok: true, token, nombre: usuario.nombre });
 });
 
-// --- API: VER COMENTARIOS ---
 app.get('/api/comentarios', async (req, res) => {
-  try {
-    const response = await fetch(`${SUPABASE_URL}/rest/v1/comentarios?order=created_at.desc`, {
-      headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
-    });
-    const data = await response.json();
-    res.json(data);
-  } catch (e) {
-    res.status(500).json({ error: 'Error al conectar con la base de datos' });
-  }
+  const response = await fetch(`${SUPABASE_URL}/rest/v1/comentarios?order=created_at.desc`, {
+    headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
+  });
+  const data = await response.json();
+  res.json(data);
 });
 
-// --- API: PUBLICAR COMENTARIO (PROTEGIDO) ---
 app.post('/api/comentarios', verificarToken, async (req, res) => {
   const { mensaje } = req.body;
   if (!mensaje)
@@ -111,24 +89,7 @@ app.post('/api/comentarios', verificarToken, async (req, res) => {
   else res.status(500).json({ error: 'Error guardando comentario' });
 });
 
-// --- API: CHATBOT INTELIGENTE ---
-app.post('/api/chat', async (req, res) => {
-  const { mensaje } = req.body;
-  if (!mensaje) return res.status(400).json({ error: 'Mensaje requerido' });
-  try {
-    const response = await anthropic.messages.create({
-      model: "claude-3-5-sonnet-20241022",
-      max_tokens: 300,
-      system: "Eres un ingeniero de redes experto. Responde dudas sobre el ponchado de cables Ethernet (T568A, T568B, herramientas como ponchadoras, conectores RJ45). Sé breve y amigable. Si preguntan algo ajeno a redes, advierte que solo respondes sobre cables de red.",
-      messages: [{ role: "user", content: mensaje }],
-    });
-    res.json({ respuesta: response.content[0].text });
-  } catch (err) {
-    res.status(500).json({ error: 'Asistente temporalmente desconectado.' });
-  }
-});
-
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`Servidor en puerto ${PORT}`);
+  console.log(`Servidor corriendo en http://localhost:${PORT}`);
 });
