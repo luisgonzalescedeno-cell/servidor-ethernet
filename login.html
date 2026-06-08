@@ -7,20 +7,16 @@
     <link rel="stylesheet" href="styles.css">
   </head>
   <body>
-
     <header>
       <h1>🔌 Guía de Ponchado</h1>
       <p>Inicia sesión o regístrate para comentar</p>
     </header>
-
     <section>
       <div class="auth-container">
-
         <div class="tabs">
           <button class="tab active" onclick="showTab('login', this)">Iniciar sesión</button>
           <button class="tab" onclick="showTab('registro', this)">Registrarse</button>
         </div>
-
         <div class="panel active" id="login">
           <div class="sim-card">
             <h3 style="color:var(--azul);margin-bottom:1.5rem">Bienvenido de vuelta 👋</h3>
@@ -30,7 +26,6 @@
             <p id="login-estado" style="margin-top:10px;font-size:14px"></p>
           </div>
         </div>
-
         <div class="panel" id="registro">
           <div class="sim-card">
             <h3 style="color:var(--azul);margin-bottom:1.5rem">Crear cuenta 🚀</h3>
@@ -41,14 +36,11 @@
             <p id="reg-estado" style="margin-top:10px;font-size:14px"></p>
           </div>
         </div>
-
       </div>
     </section>
-
     <footer>
       <p>© 2026 Guía de Redes — Ponchado de Cable Ethernet</p>
     </footer>
-
     <script>
       function showTab(id, btn) {
         document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
@@ -66,7 +58,6 @@
           estado.style.color = '#f44336'; return;
         }
         estado.textContent = 'Iniciando sesión...';
-        estado.style.color = '#777';
         try {
           const res = await fetch('/api/login', {
             method: 'POST',
@@ -100,7 +91,6 @@
           estado.style.color = '#f44336'; return;
         }
         estado.textContent = 'Creando cuenta...';
-        estado.style.color = '#777';
         try {
           const res = await fetch('/api/registro', {
             method: 'POST',
@@ -124,6 +114,5 @@
         }
       }
     </script>
-
   </body>
 </html>
