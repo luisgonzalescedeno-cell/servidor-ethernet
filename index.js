@@ -11,7 +11,6 @@ app.use(express.static('public'));
 const SUPABASE_URL = 'https://abaprnjnlwhqpmwelhyg.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFiYXBybmpubHdocXBtd2VsaHlnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA4NDY3MjAsImV4cCI6MjA5NjQyMjcyMH0.rRJFGX0NyWEapXKZklKwyqj_go0iJUUn0nVZa5AzoB8';
 
-// MIDDLEWARE — verificar token
 function verificarToken(req, res, next) {
   const auth = req.headers['authorization'];
   if (!auth) return res.status(401).json({ error: 'No autorizado' });
@@ -24,7 +23,6 @@ function verificarToken(req, res, next) {
   }
 }
 
-// REGISTRO
 app.post('/api/registro', async (req, res) => {
   const { nombre, email, password } = req.body;
   if (!nombre || !email || !password)
@@ -52,7 +50,6 @@ app.post('/api/registro', async (req, res) => {
   res.json({ ok: true, token, nombre });
 });
 
-// LOGIN
 app.post('/api/login', async (req, res) => {
   const { email, password } = req.body;
   if (!email || !password)
@@ -74,7 +71,6 @@ app.post('/api/login', async (req, res) => {
   res.json({ ok: true, token, nombre: usuario.nombre });
 });
 
-// COMENTARIOS — GET
 app.get('/api/comentarios', async (req, res) => {
   const response = await fetch(`${SUPABASE_URL}/rest/v1/comentarios?order=created_at.desc`, {
     headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
@@ -83,7 +79,6 @@ app.get('/api/comentarios', async (req, res) => {
   res.json(data);
 });
 
-// COMENTARIOS — POST (requiere login)
 app.post('/api/comentarios', verificarToken, async (req, res) => {
   const { mensaje } = req.body;
   if (!mensaje)
