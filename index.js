@@ -1,7 +1,6 @@
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const path = require('path'); // 👈 Añadido para manejar rutas de archivos
 
 const app = express();
 const SECRET = 'guia-ethernet-secret-2026';
@@ -11,11 +10,6 @@ app.use(express.static(__dirname));
 
 const SUPABASE_URL = 'https://abaprnjnlwhqpmwelhyg.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFiYXBybmpubHdocXBtd2VsaHlnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA4NDY3MjAsImV4cCI6MjA5NjQyMjcyMH0.rRJFGX0NyWEapXKZklKwyqj_go0iJUUn0nVZa5AzoB8';
-
-// 👈 NUEVA RUTA: Obliga a Railway a mostrar tu index.html en la raíz de la web
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'index.html'));
-});
 
 function verificarToken(req, res, next) {
   const auth = req.headers['authorization'];
@@ -97,5 +91,5 @@ app.post('/api/comentarios', verificarToken, async (req, res) => {
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`Servidor corriendo en el puerto ${PORT}`);
+  console.log(`Servidor corriendo en http://localhost:${PORT}`);
 });
