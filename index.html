@@ -189,19 +189,26 @@
           const res = await fetch('/api/comentarios');
           const datos = await res.json();
           const lista = document.getElementById('lista-comentarios');
-          if (datos.length === 0) {
+          
+          if (!datos || datos.length === 0) {
             lista.innerHTML = '<p style="text-align:center;color:var(--text-soft)">Sé el primero en comentar 💬</p>';
             return;
           }
-          lista.innerHTML = datos.map(c => `
-            <div class="comentario-card">
-              <div class="comentario-header">
-                <span class="comentario-nombre">👤 ${c.nombre}</span>
-                <span class="comentario-fecha">${new Date(c.fecha).toLocaleDateString('es-ES')}</span>
-              </div>
-              <p class="comentario-mensaje">${c.mensaje}</p>
-            </div>`).join('');
+          
+          lista.innerHTML = datos.map(c => {
+            // Validación para asegurar que la fecha de Postgres no rompa el diseño
+            const fechaValida = c.fecha ? new Date(c.fecha).toLocaleDateString('es-ES') : 'Reciente';
+            return `
+              <div class="comentario-card">
+                <div class="comentario-header">
+                  <span class="comentario-nombre">👤 ${c.nombre}</span>
+                  <span class="comentario-fecha">${fechaValida}</span>
+                </div>
+                <p class="comentario-mensaje">${c.mensaje}</p>
+              </div>`;
+          }).join('');
         } catch(e) {
+          console.error("Error en frontend:", e);
           document.getElementById('lista-comentarios').innerHTML =
             '<p style="text-align:center;color:#f44336">Error cargando comentarios</p>';
         }
@@ -211,10 +218,12 @@
         const nombre = document.getElementById('input-nombre').value.trim();
         const mensaje = document.getElementById('input-mensaje').value.trim();
         const estado = document.getElementById('mensaje-estado');
+        
         if (!nombre || !mensaje) {
           estado.textContent = '⚠️ Por favor completa tu nombre y comentario.';
           estado.style.color = '#f44336'; return;
         }
+        
         estado.textContent = 'Enviando...';
         try {
           const res = await fetch('/api/comentarios', {
@@ -222,6 +231,7 @@
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ nombre, mensaje })
           });
+          
           if (res.ok) {
             estado.textContent = '✅ ¡Comentario enviado!';
             estado.style.color = '#4caf50';
@@ -238,6 +248,7 @@
         }
       }
 
+      // Llamada inicial para cargar los comentarios al entrar en la web
       cargarComentarios();
 
       const preguntas = [
