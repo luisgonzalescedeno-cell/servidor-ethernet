@@ -53,10 +53,7 @@
         const email = document.getElementById('login-email').value.trim();
         const password = document.getElementById('login-password').value.trim();
         const estado = document.getElementById('login-estado');
-        if (!email || !password) {
-          estado.textContent = '⚠️ Completa todos los campos';
-          estado.style.color = '#f44336'; return;
-        }
+        if (!email || !password) { estado.textContent = '⚠️ Completa todos los campos'; estado.style.color = '#f44336'; return; }
         estado.textContent = 'Iniciando sesión...';
         try {
           const res = await fetch('/api/login', {
@@ -86,10 +83,7 @@
         const email = document.getElementById('reg-email').value.trim();
         const password = document.getElementById('reg-password').value.trim();
         const estado = document.getElementById('reg-estado');
-        if (!nombre || !email || !password) {
-          estado.textContent = '⚠️ Completa todos los campos';
-          estado.style.color = '#f44336'; return;
-        }
+        if (!nombre || !email || !password) { estado.textContent = '⚠️ Completa todos los campos'; estado.style.color = '#f44336'; return; }
         estado.textContent = 'Creando cuenta...';
         try {
           const res = await fetch('/api/registro', {
