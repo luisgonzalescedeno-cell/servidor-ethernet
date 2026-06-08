@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <title>Guía de Ponchado de Cable Ethernet</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+
+    <button class="toggle-dark" onclick="toggleDark()">🌙</button>
+
+    <header>
+      <h1>🔌 Guía de Ponchado de Cable Ethernet</h1>
+      <p>Aprende a ponchar un cable de red paso a paso</p>
+    </header>
+
+    <nav>
+      <a href="#materiales">Materiales</a>
+      <a href="#pasos">Pasos</a>
+      <a href="#estandares">Estándares</a>
+      <a href="#consejos">Consejos</a>
+      <a href="#quiz">Quiz</a>
+      <a href="#comentarios">Comentarios</a>
+      <a href="simulador.html">🎮 Simulador</a>
+    </nav>
+
+    <section id="materiales">
+      <h2>🧰 Materiales Necesarios</h2>
+      <div class="materiales">
+        <div class="card animar">
+          <div class="emoji">🔧</div>
+          <h3>Ponchadora</h3>
+          <p>Herramienta principal para fijar los conectores RJ45</p>
+        </div>
+        <div class="card animar">
+          <div class="emoji">🔌</div>
+          <h3>Conectores RJ45</h3>
+          <p>Conectores de 8 pines al final del cable</p>
+        </div>
+        <div class="card animar">
+          <div class="emoji">🌈</div>
+          <h3>Cable UTP Cat6</h3>
+          <p>Cable de red con 4 pares trenzados de colores</p>
+        </div>
+        <div class="card animar">
+          <div class="emoji">✂️</div>
+          <h3>Pelacables</h3>
+          <p>Para retirar la cubierta exterior del cable</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="pasos">
+      <h2>📋 Pasos del Ponchado</h2>
+      <div class="pasos">
+        <div class="paso animar">
+          <div class="numero">1</div>
+          <div class="contenido">
+            <h3>Pela el cable</h3>
+            <p>Retira unos 2-3 cm de la cubierta exterior del cable UTP con el pelacables. Ten cuidado de no dañar los cables internos.</p>
+          </div>
+        </div>
+        <div class="paso animar">
+          <div class="numero">2</div>
+          <div class="contenido">
+            <h3>Separa y ordena los pares</h3>
+            <p>Desenreda los 4 pares de cables y ordénalos según el estándar T568B: Blanco-Naranja, Naranja, Blanco-Verde, Azul, Blanco-Azul, Verde, Blanco-Café, Café.</p>
+          </div>
+        </div>
+        <div class="paso animar">
+          <div class="numero">3</div>
+          <div class="contenido">
+            <h3>Corta en línea recta</h3>
+            <p>Una vez ordenados, corta los cables para que queden todos a la misma altura — aproximadamente 1.5 cm desde la cubierta.</p>
+          </div>
+        </div>
+        <div class="paso animar">
+          <div class="numero">4</div>
+          <div class="contenido">
+            <h3>Inserta en el conector RJ45</h3>
+            <p>Introduce los cables en el conector RJ45 manteniendo el orden. Asegúrate de que cada cable llegue hasta el fondo del conector.</p>
+          </div>
+        </div>
+        <div class="paso animar">
+          <div class="numero">5</div>
+          <div class="contenido">
+            <h3>Poncha el conector</h3>
+            <p>Introduce el conector en la ponchadora y presiona con fuerza. Los pines metálicos se clavan en cada cable fijando la conexión.</p>
+          </div>
+        </div>
+        <div class="paso animar">
+          <div class="numero">6</div>
+          <div class="contenido">
+            <h3>Prueba la conexión</h3>
+            <p>Usa un tester de red para verificar que los 8 pines estén correctamente conectados. Todos los LEDs deben encenderse en orden.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="estandares">
+      <h2>🌈 Estándares de Colores</h2>
+      <div class="estandares">
+        <div class="estandar-card animar">
+          <h3>T568A</h3>
+          <div class="pines">
+            <span class="pin blanco-verde">1. Blanco-Verde</span>
+            <span class="pin verde">2. Verde</span>
+            <span class="pin blanco-naranja">3. Blanco-Naranja</span>
+            <span class="pin azul">4. Azul</span>
+            <span class="pin blanco-azul">5. Blanco-Azul</span>
+            <span class="pin naranja">6. Naranja</span>
+            <span class="pin blanco-cafe">7. Blanco-Café</span>
+            <span class="pin cafe">8. Café</span>
+          </div>
+        </div>
+        <div class="estandar-card animar">
+          <h3>T568B ⭐ Más usado</h3>
+          <div class="pines">
+            <span class="pin blanco-naranja">1. Blanco-Naranja</span>
+            <span class="pin naranja">2. Naranja</span>
+            <span class="pin blanco-verde">3. Blanco-Verde</span>
+            <span class="pin azul">4. Azul</span>
+            <span class="pin blanco-azul">5. Blanco-Azul</span>
+            <span class="pin verde">6. Verde</span>
+            <span class="pin blanco-cafe">7. Blanco-Café</span>
+            <span class="pin cafe">8. Café</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="consejos">
+      <h2>💡 Consejos Finales</h2>
+      <div class="consejos">
+        <div class="consejo animar">✅ Usa siempre el mismo estándar en ambos extremos del cable</div>
+        <div class="consejo animar">✅ Verifica que los cables lleguen al fondo del RJ45 antes de ponchar</div>
+        <div class="consejo animar">✅ No dobles el cable bruscamente, el radio mínimo es 4 veces su diámetro</div>
+        <div class="consejo animar">✅ Usa cable Cat6 para redes modernas de alta velocidad</div>
+        <div class="consejo animar">⚠️ Si el tester falla, corta el conector y vuelve a ponchar</div>
+      </div>
+    </section>
+
+    <section id="quiz">
+      <h2>🧪 Pon a prueba tu conocimiento</h2>
+      <div id="quiz-container">
+        <div id="pregunta"></div>
+        <div id="opciones"></div>
+        <div id="resultado"></div>
+        <button id="btn-siguiente" onclick="siguientePregunta()" style="display:none">Siguiente →</button>
+        <div id="puntaje-final" style="display:none"></div>
+      </div>
+    </section>
+
+    <section id="comentarios">
+      <h2>💬 Comentarios</h2>
+      <div id="comentarios-container">
+        <div id="form-comentario">
+          <input type="text" id="input-nombre" placeholder="Tu nombre" />
+          <textarea id="input-mensaje" placeholder="Escribe tu comentario..." rows="4"></textarea>
+          <button onclick="enviarComentario()">Enviar comentario</button>
+          <p id="mensaje-estado"></p>
+        </div>
+        <div id="lista-comentarios">
+          <p style="text-align:center;color:var(--text-soft)">Cargando comentarios...</p>
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      <p>© 2026 Guía de Redes — Ponchado de Cable Ethernet</p>
+      <p style="margin-top:10px;font-size:13px;opacity:0.8">
+        👁️ Visitas: <span id="contador">...</span>
+      </p>
+    </footer>
+
+    <script>
+      function toggleDark() {
+        document.body.classList.toggle('dark');
+        document.querySelector('.toggle-dark').textContent =
+          document.body.classList.contains('dark') ? '☀️' : '🌙';
+      }
+
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+      }, { threshold: 0.1 });
+      document.querySelectorAll('.animar').forEach(el => observer.observe(el));
+
+      fetch('https://api.countapi.xyz/hit/luisgonzalescedeno-cell.github.io/guia-ethernet')
+        .then(r => r.json()).then(d => {
+          document.getElementById('contador').textContent = d.value;
+        }).catch(() => { document.getElementById('contador').textContent = '—'; });
+
+      async function cargarComentarios() {
+        try {
+          const res = await fetch('/api/comentarios');
+          const datos = await res.json();
+          const lista = document.getElementById('lista-comentarios');
+          if (datos.length === 0) {
+            lista.innerHTML = '<p style="text-align:center;color:var(--text-soft)">Sé el primero en comentar 💬</p>';
+            return;
+          }
+          lista.innerHTML = datos.map(c => `
+            <div class="comentario-card">
+              <div class="comentario-header">
+                <span class="comentario-nombre">👤 ${c.nombre}</span>
+                <span class="comentario-fecha">${new Date(c.fecha).toLocaleDateString('es-ES')}</span>
+              </div>
+              <p class="comentario-mensaje">${c.mensaje}</p>
+            </div>`).join('');
+        } catch(e) {
+          document.getElementById('lista-comentarios').innerHTML =
+            '<p style="text-align:center;color:#f44336">Error cargando comentarios</p>';
+        }
+      }
+
+      async function enviarComentario() {
+        const nombre = document.getElementById('input-nombre').value.trim();
+        const mensaje = document.getElementById('input-mensaje').value.trim();
+        const estado = document.getElementById('mensaje-estado');
+        if (!nombre || !mensaje) {
+          estado.textContent = '⚠️ Por favor completa tu nombre y comentario.';
+          estado.style.color = '#f44336'; return;
+        }
+        estado.textContent = 'Enviando...';
+        try {
+          const res = await fetch('/api/comentarios', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ nombre, mensaje })
+          });
+          if (res.ok) {
+            estado.textContent = '✅ ¡Comentario enviado!';
+            estado.style.color = '#4caf50';
+            document.getElementById('input-nombre').value = '';
+            document.getElementById('input-mensaje').value = '';
+            cargarComentarios();
+          } else {
+            estado.textContent = '❌ Error al enviar.';
+            estado.style.color = '#f44336';
+          }
+        } catch(e) {
+          estado.textContent = '❌ No se pudo conectar al servidor.';
+          estado.style.color = '#f44336';
+        }
+      }
+
+      cargarComentarios();
+
+      const preguntas = [
+        { pregunta: "¿Cuál es el estándar más usado para ponchar cables Ethernet?", opciones: ["T568A","T568B","T568C","RJ11"], correcta: 1 },
+        { pregunta: "¿Cuántos pines tiene un conector RJ45?", opciones: ["4","6","8","12"], correcta: 2 },
+        { pregunta: "¿Qué herramienta se usa para fijar el conector RJ45?", opciones: ["Pelacables","Ponchadora","Destornillador","Multímetro"], correcta: 1 },
+        { pregunta: "¿Cuántos pares trenzados tiene un cable UTP Cat6?", opciones: ["2","3","4","6"], correcta: 2 },
+        { pregunta: "¿Qué dispositivo se usa para verificar que el cable quedó bien ponchado?", opciones: ["Multímetro","Tester de red","Osciloscopio","Switch"], correcta: 1 }
+      ];
+
+      let preguntaActual = 0, puntaje = 0;
+
+      function mostrarPregunta() {
+        const p = preguntas[preguntaActual];
+        document.getElementById('pregunta').innerHTML = `
+          <p style="font-size:18px;font-weight:700;margin-bottom:20px;color:var(--azul)">
+            Pregunta ${preguntaActual+1} de ${preguntas.length}: ${p.pregunta}</p>`;
+        document.getElementById('opciones').innerHTML = p.opciones.map((op,i) => `
+          <button onclick="verificar(${i})" style="display:block;width:100%;margin:8px 0;padding:12px 20px;
+            background:var(--card);border:2px solid var(--azul);border-radius:10px;font-size:15px;
+            cursor:pointer;color:var(--text);transition:background .2s">${op}</button>`).join('');
+        document.getElementById('resultado').innerHTML = '';
+        document.getElementById('btn-siguiente').style.display = 'none';
+      }
+
+      function verificar(indice) {
+        const p = preguntas[preguntaActual];
+        const botones = document.querySelectorAll('#opciones button');
+        botones.forEach(b => b.disabled = true);
+        if (indice === p.correcta) {
+          puntaje++;
+          botones[indice].style.background = '#4caf50';
+          botones[indice].style.color = 'white';
+          document.getElementById('resultado').innerHTML = '<p style="color:#4caf50;font-weight:700;margin-top:10px">✅ ¡Correcto!</p>';
+        } else {
+          botones[indice].style.background = '#f44336';
+          botones[indice].style.color = 'white';
+          botones[p.correcta].style.background = '#4caf50';
+          botones[p.correcta].style.color = 'white';
+          document.getElementById('resultado').innerHTML = '<p style="color:#f44336;font-weight:700;margin-top:10px">❌ Incorrecto</p>';
+        }
+        document.getElementById('btn-siguiente').style.display = 'inline-block';
+      }
+
+      function siguientePregunta() {
+        preguntaActual++;
+        if (preguntaActual < preguntas.length) mostrarPregunta();
+        else mostrarResultadoFinal();
+      }
+
+      function mostrarResultadoFinal() {
+        document.getElementById('pregunta').innerHTML = '';
+        document.getElementById('opciones').innerHTML = '';
+        document.getElementById('resultado').innerHTML = '';
+        document.getElementById('btn-siguiente').style.display = 'none';
+        const pct = (puntaje / preguntas.length) * 100;
+        const msg = pct===100 ? '🏆 ¡Perfecto! Eres un experto en redes' :
+                    pct>=60  ? '👍 ¡Buen trabajo! Sigue practicando' :
+                               '📚 Repasa el contenido e inténtalo de nuevo';
+        document.getElementById('puntaje-final').style.display = 'block';
+        document.getElementById('puntaje-final').innerHTML = `
+          <div style="text-align:center;padding:30px;background:var(--card);border-radius:16px;box-shadow:0 4px 20px var(--sombra)">
+            <p style="font-size:50px;margin-bottom:10px">🧪</p>
+            <h3 style="font-size:28px;color:var(--azul);margin-bottom:10px">${puntaje} / ${preguntas.length} correctas</h3>
+            <p style="font-size:18px;color:var(--text-soft);margin-bottom:20px">${msg}</p>
+            <button onclick="reiniciarQuiz()" style="background:var(--azul);color:white;border:none;
+              padding:12px 30px;border-radius:20px;font-size:16px;cursor:pointer">🔄 Intentar de nuevo</button>
+          </div>`;
+      }
+
+      function reiniciarQuiz() {
+        preguntaActual = 0; puntaje = 0;
+        document.getElementById('puntaje-final').style.display = 'none';
+        mostrarPregunta();
+      }
+
+      mostrarPregunta();
+    </script>
+  </body>
+</html>

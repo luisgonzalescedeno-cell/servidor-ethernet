@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <title>Simulador de Ponchado - Guía Ethernet</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+
+    <button class="toggle-dark" onclick="toggleDark()">🌙</button>
+
+    <header>
+      <h1>🔌 Simulador de Ponchado</h1>
+      <p>Practica el ponchado de cable Ethernet de forma interactiva</p>
+    </header>
+
+    <nav>
+      <a href="index.html">Volver a la guía</a>
+    </nav>
+
+    <section>
+      <div class="sim-wrap">
+
+        <div class="tabs">
+          <button class="tab active" onclick="showPanel('p1',this)">🌈 Estándares de color</button>
+          <button class="tab" onclick="showPanel('p2',this)">🎮 Ordenar cables</button>
+          <button class="tab" onclick="showPanel('p3',this)">🧪 Tester de red</button>
+        </div>
+
+        <!-- Panel 1: Estándares -->
+        <div class="panel active" id="p1">
+          <div class="sim-card">
+            <div style="display:flex;gap:8px;margin-bottom:1rem;flex-wrap:wrap">
+              <button class="scenario-btn active" onclick="setStd('B',this)">T568B (más usado)</button>
+              <button class="scenario-btn" onclick="setStd('A',this)">T568A</button>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:1rem">
+              <span id="std-label" style="font-weight:700;color:var(--azul)">Estándar T568B</span>
+              <span id="std-badge" class="badge badge-info">Recomendado</span>
+            </div>
+            <div class="std-grid" id="std-pins"></div>
+          </div>
+          <p style="font-size:14px;color:#777;margin-top:1rem">Ambos extremos del cable deben usar el mismo estándar. Para conexión cruzada usa T568A en un extremo y T568B en el otro.</p>
+        </div>
+
+        <!-- Panel 2: Ordenar cables -->
+        <div class="panel" id="p2">
+          <div class="sim-card">
+            <div style="display:flex;gap:8px;margin-bottom:1rem;flex-wrap:wrap">
+              <button class="scenario-btn active" onclick="initGame('B',this)">Practicar T568B</button>
+              <button class="scenario-btn" onclick="initGame('A',this)">Practicar T568A</button>
+            </div>
+            <p style="font-size:14px;color:#777;margin-bottom:1rem">Selecciona un cable del banco y luego haz clic en la ranura correcta del conector RJ45.</p>
+            <div class="cables-area">
+              <div>
+                <p style="font-size:12px;color:#777;margin-bottom:8px">Banco de cables</p>
+                <div class="cable-pool" id="cable-pool"></div>
+              </div>
+              <div>
+                <p style="font-size:12px;color:#777;margin-bottom:8px">Conector RJ45</p>
+                <div class="connector" id="connector-slots"></div>
+              </div>
+            </div>
+            <div class="result-banner" id="game-result"></div>
+            <div style="margin-top:1rem;display:flex;gap:8px">
+              <button class="sim-btn" onclick="checkOrder()">Verificar orden</button>
+              <button class="sim-btn secondary" onclick="resetGame()">Reiniciar</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Panel 3: Tester -->
+        <div class="panel" id="p3">
+          <div class="sim-card">
+            <p style="font-size:14px;color:#777;margin-bottom:1rem">Selecciona un escenario y observa el resultado del tester:</p>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:1.5rem">
+              <button class="scenario-btn" onclick="runTest('ok',this)">✅ Cable correcto</button>
+              <button class="scenario-btn" onclick="runTest('cross',this)">🔀 Cable cruzado</button>
+              <button class="scenario-btn" onclick="runTest('broken',this)">❌ Cable roto (pin 3)</button>
+              <button class="scenario-btn" onclick="runTest('short',this)">⚡ Cortocircuito</button>
+              <button class="scenario-btn active" onclick="runTest('none',this)">🔌 Sin cable</button>
+            </div>
+            <div class="tester-box">
+              <div class="tester-col">
+                <p style="font-size:12px;color:#777;margin-bottom:8px">Extremo A</p>
+                <div id="leds-a"></div>
+              </div>
+              <div class="tester-col">
+                <p style="font-size:12px;color:#777;margin-bottom:8px">Extremo B</p>
+                <div id="leds-b"></div>
+              </div>
+            </div>
+            <div id="test-diagnosis" style="margin-top:1rem"></div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <footer>
+      <p>© 2026 Guía de Redes — Simulador de Ponchado</p>
+    </footer>
+
+    <script>
+      // MODO OSCURO
+      function toggleDark() {
+        document.body.classList.toggle('dark');
+        const btn = document.querySelector('.toggle-dark');
+        btn.textContent = document.body.classList.contains('dark') ? '☀️' : '🌙';
+      }
+
+      const COLORS = {
+        'Blanco-Naranja':'#d97706','Naranja':'#b45309','Blanco-Verde':'#16a34a',
+        'Azul':'#1d4ed8','Blanco-Azul':'#3b82f6','Verde':'#15803d',
+        'Blanco-Café':'#92400e','Café':'#78350f'
+      };
+
+      const STD = {
+        B:['Blanco-Naranja','Naranja','Blanco-Verde','Azul','Blanco-Azul','Verde','Blanco-Café','Café'],
+        A:['Blanco-Verde','Verde','Blanco-Naranja','Azul','Blanco-Azul','Naranja','Blanco-Café','Café']
+      };
+
+      function showPanel(id, btn) {
+        document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+        btn.classList.add('active');
+      }
+
+      function renderStd(std) {
+        const pins = document.getElementById('std-pins');
+        const order = STD[std];
+        let html = '<div>';
+        for (let i = 0; i < 4; i++) {
+          const name = order[i];
+          html += `<div class="pin-row" style="background:${COLORS[name]}"><span class="pin-num">${i+1}</span>${name}</div>`;
+        }
+        html += '</div><div>';
+        for (let i = 4; i < 8; i++) {
+          const name = order[i];
+          html += `<div class="pin-row" style="background:${COLORS[name]}"><span class="pin-num">${i+1}</span>${name}</div>`;
+        }
+        html += '</div>';
+        pins.innerHTML = html;
+      }
+
+      function setStd(std, btn) {
+        document.querySelectorAll('#p1 .scenario-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById('std-label').textContent = 'Estándar T568' + std;
+        document.getElementById('std-badge').textContent = std === 'B' ? 'Recomendado' : 'Alternativo';
+        document.getElementById('std-badge').className = 'badge ' + (std === 'B' ? 'badge-info' : 'badge-warn');
+        renderStd(std);
+      }
+
+      renderStd('B');
+
+      let currentStd = 'B', selectedCable = null, slots = Array(8).fill(null);
+
+      function initGame(std, btn) {
+        document.querySelectorAll('#p2 .scenario-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentStd = std; selectedCable = null; slots = Array(8).fill(null);
+        document.getElementById('game-result').style.display = 'none';
+        renderPool(); renderSlots();
+      }
+
+      function renderPool() {
+        const order = [...STD[currentStd]].sort(() => Math.random() - .5);
+        const pool = document.getElementById('cable-pool');
+        pool.innerHTML = order.map(name => `
+          <button class="cable-chip" style="background:${COLORS[name]}" onclick="selectCable('${name}',this)">${name}</button>
+        `).join('');
+      }
+
+      function renderSlots() {
+        const s = document.getElementById('connector-slots');
+        s.innerHTML = slots.map((v, i) => {
+          if (v) {
+            return `<div class="slot filled" style="background:${COLORS[v]};border-color:${COLORS[v]}" data-idx="${i}"><span style="font-size:11px;opacity:.7;margin-right:6px">${i+1}</span>${v}</div>`;
+          }
+          return `<div class="slot" data-idx="${i}" onclick="placeInSlot(${i})"><span style="font-size:11px;margin-right:6px">${i+1}</span>Ranura ${i+1}</div>`;
+        }).join('');
+      }
+
+      function selectCable(name, btn) {
+        document.querySelectorAll('.cable-chip').forEach(b => b.classList.remove('selected'));
+        if (selectedCable === name) { selectedCable = null; return; }
+        selectedCable = name;
+        btn.classList.add('selected');
+      }
+
+      function placeInSlot(idx) {
+        if (!selectedCable) return;
+        if (slots[idx]) return;
+        const chips = [...document.querySelectorAll('.cable-chip')];
+        const chip = chips.find(c => c.textContent === selectedCable && !c.disabled);
+        if (!chip) return;
+        slots[idx] = selectedCable;
+        chip.disabled = true; chip.style.opacity = '.35';
+        chip.classList.remove('selected'); selectedCable = null;
+        renderSlots();
+      }
+
+      function checkOrder() {
+        const correct = STD[currentStd];
+        let ok = 0;
+        const slotEls = document.querySelectorAll('#connector-slots .slot.filled');
+        slotEls.forEach(el => {
+          const i = parseInt(el.dataset.idx);
+          if (slots[i] === correct[i]) { el.classList.add('correct'); ok++; }
+          else el.classList.add('wrong');
+        });
+        const r = document.getElementById('game-result');
+        r.style.display = 'block';
+        if (ok === 8) {
+          r.style.background = '#dcfce7'; r.style.color = '#15803d';
+          r.textContent = '¡Perfecto! Todos los cables en el orden correcto.';
+        } else {
+          r.style.background = '#fee2e2'; r.style.color = '#b91c1c';
+          r.textContent = `${ok}/8 cables correctos. Los marcados en verde son correctos, los rojos están mal.`;
+        }
+      }
+
+      function resetGame() {
+        initGame(currentStd, document.querySelector('#p2 .scenario-btn.active'));
+      }
+
+      function runTest(scenario, btn) {
+        document.querySelectorAll('#p3 .scenario-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        const ledsA = document.getElementById('leds-a');
+        const ledsB = document.getElementById('leds-b');
+        const diag = document.getElementById('test-diagnosis');
+        let stateA = Array(8).fill('off'), stateB = Array(8).fill('off'), msg = '', cls = '';
+        if (scenario === 'ok') {
+          stateA = Array(8).fill('g'); stateB = Array(8).fill('g');
+          msg = '✅ Cable correcto: todos los pines conectan en orden. Listo para usar.'; cls = 'badge-success';
+        } else if (scenario === 'cross') {
+          stateA = Array(8).fill('g'); stateB = Array(8).fill('g');
+          msg = '🔀 Cable cruzado: válido para conexión directa PC-PC sin switch.'; cls = 'badge-warn';
+        } else if (scenario === 'broken') {
+          stateA = Array(8).fill('g'); stateA[2] = 'r';
+          stateB = Array(8).fill('g'); stateB[2] = 'r';
+          msg = '❌ Pin 3 roto o mal ponchado. Corta el conector y vuelve a ponchar.'; cls = 'badge-danger';
+        } else if (scenario === 'short') {
+          stateA = ['r','r','off','off','off','off','off','off'];
+          stateB = ['r','r','off','off','off','off','off','off'];
+          msg = '⚡ Cortocircuito entre pines 1 y 2. Revisar que los cables no se toquen.'; cls = 'badge-danger';
+        } else {
+          msg = '🔌 Sin cable conectado o conector suelto.'; cls = 'badge-warn';
+        }
+        const names = ['1','2','3','4','5','6','7','8'];
+        ledsA.innerHTML = names.map((n,i) => `
+          <div class="tester-led">
+            <div class="led ${stateA[i]==='g'?'on-g':stateA[i]==='r'?'on-r':''}"></div>
+            <span>Pin ${n}</span>
+          </div>`).join('');
+        ledsB.innerHTML = names.map((n,i) => `
+          <div class="tester-led">
+            <div class="led ${stateB[i]==='g'?'on-g':stateB[i]==='r'?'on-r':''}"></div>
+            <span>Pin ${n}</span>
+          </div>`).join('');
+        diag.innerHTML = `<span class="badge ${cls}">${msg}</span>`;
+      }
+
+      runTest('none', document.querySelector('#p3 .scenario-btn.active'));
+      initGame('B', document.querySelector('#p2 .scenario-btn.active'));
+    </script>
+
+  </body>
+</html>
