@@ -1,37 +1,63 @@
 const express = require('express');
-const Database = require('better-sqlite3');
+const { Pool } = require('pg');
 
 const app = express();
-const db = new Database('comentarios.db');
 
 app.use(express.json());
 app.use(express.static('public'));
 
-db.exec(`
-  CREATE TABLE IF NOT EXISTS comentarios (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    nombre TEXT NOT NULL,
-    mensaje TEXT NOT NULL,
-    fecha TEXT DEFAULT (datetime('now'))
-  )
-`);
-
-app.get('/api/comentarios', (req, res) => {
-  const comentarios = db.prepare('SELECT * FROM comentarios ORDER BY id DESC').all();
-  res.json(comentarios);
+// Configuración de la conexión a PostgreSQL usando la variable de Railway
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: process.env.DATABASE_URL ? { rejectUnauthorized: false } : false
 });
 
-app.post('/api/comentarios', (req, res) => {
+// Inicializar la tabla en PostgreSQL (Equivalente a tu db.exec)
+const initDb = async () => {
+  try {
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS comentarios (
+        id SERIAL PRIMARY KEY,
+        nombre TEXT NOT NULL,
+        mensaje TEXT NOT NULL,
+        fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+    console.log("Tabla de comentarios verificada/creada en PostgreSQL.");
+  } catch (err) {
+    console.error("Error al inicializar la base de datos:", err);
+  }
+};
+initDb();
+
+// GET: Obtener comentarios
+app.get('/api/comentarios', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT * FROM comentarios ORDER BY id DESC');
+    res.json(result.rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Error al obtener los comentarios' });
+  }
+});
+
+// POST: Guardar un comentario
+app.post('/api/comentarios', async (req, res) => {
   const { nombre, mensaje } = req.body;
   if (!nombre || !mensaje) {
     return res.status(400).json({ error: 'Nombre y mensaje son requeridos' });
   }
-  const insert = db.prepare('INSERT INTO comentarios (nombre, mensaje) VALUES (?, ?)');
-  const result = insert.run(nombre, mensaje);
-  res.json({ ok: true, id: result.lastInsertRowid });
+  try {
+    const queryText = 'INSERT INTO comentarios (nombre, mensaje) VALUES ($1, $2) RETURNING id';
+    const result = await pool.query(queryText, [nombre, mensaje]);
+    res.json({ ok: true, id: result.rows[0].id });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Error al guardar el comentario' });
+  }
 });
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`Servidor corriendo en http://localhost:${PORT}`);
+  console.log(`Servidor corriendo en el puerto ${PORT}`);
 });
