@@ -170,9 +170,6 @@
 
     <footer>
       <p>© 2026 Guía de Redes — Ponchado de Cable Ethernet</p>
-      <p style="margin-top:10px;font-size:13px;opacity:0.8">
-        👁️ Visitas: <span id="contador">...</span>
-      </p>
     </footer>
 
     <script>
@@ -186,11 +183,6 @@
         entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
       }, { threshold: 0.1 });
       document.querySelectorAll('.animar').forEach(el => observer.observe(el));
-
-      fetch('https://api.countapi.xyz/hit/luisgonzalescedeno-cell.github.io/guia-ethernet')
-        .then(r => r.json()).then(d => {
-          document.getElementById('contador').textContent = d.value;
-        }).catch(() => { document.getElementById('contador').textContent = '—'; });
 
       async function cargarComentarios() {
         try {
