@@ -1,136 +1,48 @@
-(function () {
+/* =======================
+   RESPUESTAS LOCALES
+======================= */
 
-  const SYSTEM_PROMPT = `Eres un asistente experto en redes de computadoras, específicamente en el ponchado de cables Ethernet.
+const LOCAL_RESPONSES = [
+  {
+    keywords: ["t568a", "t568b", "diferencia"],
+    answer: "La diferencia entre T568A y T568B está en el orden de los pares verde y naranja. Ambos estándares funcionan igual eléctricamente y cumplen con la norma TIA/EIA."
+  },
+  {
+    keywords: ["cable directo", "directo"],
+    answer: "Un cable directo utiliza el mismo estándar en ambos extremos (T568A-T568A o T568B-T568B). Se usa para conectar dispositivos diferentes, como una PC a un switch."
+  },
+  {
+    keywords: ["cable cruzado", "cruzado"],
+    answer: "El cable cruzado utiliza T568A en un extremo y T568B en el otro. Tradicionalmente se usaba para conectar dispositivos similares, como PC-PC o switch-switch."
+  },
+  {
+    keywords: ["herramientas", "ponchar", "ponchadora", "tester"],
+    answer: "Las herramientas principales para ponchar cables Ethernet son: ponchadora RJ45, pelacables, conectores RJ45 y un tester para verificar la conexión."
+  },
+  {
+    keywords: ["orden t568b"],
+    answer: "El orden T568B es: Blanco/Naranja, Naranja, Blanco/Verde, Azul, Blanco/Azul, Verde, Blanco/Café y Café."
+  },
+  {
+    keywords: ["orden t568a"],
+    answer: "El orden T568A es: Blanco/Verde, Verde, Blanco/Naranja, Azul, Blanco/Azul, Naranja, Blanco/Café y Café."
+  }
+];
 
-Ayudas con:
-- Estándares T568A y T568B
-- Pasos para ponchar cables RJ45
-- Tipos de cables (directo, cruzado)
-- Herramientas (ponchadora, pelacables, tester)
-- Normas TIA/EIA
+function buscarRespuestaLocal(texto) {
 
-Responde siempre en español, de forma clara y concisa.
-Máximo 3 párrafos.`;
+  const pregunta = texto.toLowerCase();
 
-  let conversationHistory = [];
-  let isLoading = false;
-  let isOpen = false;
+  for (const item of LOCAL_RESPONSES) {
 
-  async function sendMessage(customText) {
+    const coincide = item.keywords.some(keyword =>
+      pregunta.includes(keyword)
+    );
 
-    if (isLoading) return;
-
-    const input = document.getElementById("ai-input");
-    const text = customText || input.value.trim();
-
-    if (!text) return;
-
-    input.value = "";
-
-    addMessage(text, "user");
-
-    conversationHistory.push({
-      role: "user",
-      content: text
-    });
-
-    isLoading = true;
-    document.getElementById("ai-send").disabled = true;
-
-    showLoading();
-
-    try {
-
-      const response = await fetch("/api/ai", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          system: SYSTEM_PROMPT,
-          messages: conversationHistory
-        })
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || "Error del servidor");
-      }
-
-      const reply =
-        data.content?.[0]?.text ||
-        "No se recibió respuesta.";
-
-      conversationHistory.push({
-        role: "assistant",
-        content: reply
-      });
-
-      hideLoading();
-      addMessage(reply, "bot");
-
-    } catch (err) {
-
-      hideLoading();
-
-      addMessage(
-        "❌ Error: " + err.message,
-        "bot"
-      );
-
-      console.error("AI Error:", err);
-
-    } finally {
-
-      isLoading = false;
-      document.getElementById("ai-send").disabled = false;
+    if (coincide) {
+      return item.answer;
     }
   }
 
-  function addMessage(text, role) {
-
-    const msgs = document.getElementById("ai-messages");
-
-    const div = document.createElement("div");
-
-    div.className = `ai-msg ${role}`;
-
-    div.textContent = text;
-
-    msgs.appendChild(div);
-
-    msgs.scrollTop = msgs.scrollHeight;
-  }
-
-  function showLoading() {
-
-    const msgs = document.getElementById("ai-messages");
-
-    const div = document.createElement("div");
-
-    div.id = "ai-loading";
-
-    div.className = "ai-msg bot";
-
-    div.innerHTML = "Escribiendo...";
-
-    msgs.appendChild(div);
-
-    msgs.scrollTop = msgs.scrollHeight;
-  }
-
-  function hideLoading() {
-
-    const loading = document.getElementById("ai-loading");
-
-    if (loading) {
-      loading.remove();
-    }
-  }
-
-  window.AIAssistant = {
-    ask: (q) => sendMessage(q)
-  };
-
-})();
+  return null;
+}
