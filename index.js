@@ -115,13 +115,16 @@ app.post('/api/ai', async (req, res) => {
 
   try {
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_KEY}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${GEMINI_KEY}`,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          system_instruction: { parts: [{ text: system || 'Eres un asistente experto en redes.' }] },
-          contents: geminiMessages,
+          contents: [
+            { role: 'user', parts: [{ text: system || 'Eres un asistente experto en redes de computadoras y ponchado de cables Ethernet. Responde siempre en español.' }] },
+            { role: 'model', parts: [{ text: 'Entendido, estoy listo para ayudarte.' }] },
+            ...geminiMessages
+          ],
           generationConfig: { maxOutputTokens: 600 }
         })
       }
