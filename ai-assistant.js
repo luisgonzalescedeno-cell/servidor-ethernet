@@ -298,7 +298,7 @@ Responde siempre en español, de forma clara y concisa. Si el usuario está haci
     panel.classList.remove("open");
   });
 
-  document.getElementById("ai-send").addEventListener("click", sendMessage);
+  document.getElementById("ai-send").addEventListener("click", () => sendMessage());
 
   document.getElementById("ai-input").addEventListener("keydown", (e) => {
     if (e.key === "Enter" && !e.shiftKey) {
@@ -376,10 +376,10 @@ Responde siempre en español, de forma clara y concisa. Si el usuario está haci
         }),
       });
 
-      if (!res.ok) throw new Error("Error en el servidor");
+      if (!res.ok) { const e = await res.json().catch(()=>({})); throw new Error(e.error || "Error " + res.status); }
 
       const data = await res.json();
-      const reply = data.content?.[0]?.text || "Lo siento, no pude procesar tu pregunta.";
+      const reply = data.content?.[0]?.text || "Sin respuesta del servidor.";
 
       conversationHistory.push({ role: "assistant", content: reply });
       hideLoading();
