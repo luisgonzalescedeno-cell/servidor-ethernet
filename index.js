@@ -123,10 +123,14 @@ app.post('/api/ai', async (req, res) => {
       })
     });
     const data = await response.json();
+    if (!response.ok) {
+      console.error('[IA] Anthropic error:', JSON.stringify(data));
+      return res.status(response.status).json({ error: data.error?.message || 'Error de Anthropic' });
+    }
     res.json(data);
   } catch (err) {
-    console.error('[IA]', err);
-    res.status(500).json({ error: 'Error interno' });
+    console.error('[IA] catch:', err.message);
+    res.status(500).json({ error: 'Error interno: ' + err.message });
   }
 });
 // ─────────────────────────────────────────────────────────────
