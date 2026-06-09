@@ -89,6 +89,48 @@ app.post('/api/comentarios', verificarToken, async (req, res) => {
   else res.status(500).json({ error: 'Error guardando comentario' });
 });
 
+// ── ASISTENTE IA ──────────────────────────────────────────────
+const ANTHROPIC_KEY = process.env.ANTHROPIC_API_KEY;
+
+const requestCounts = new Map();
+app.post('/api/ai', async (req, res) => {
+  const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
+  const now = Date.now();
+  const win = 60 * 60 * 1000;
+  const r = requestCounts.get(ip) || { count: 0, resetAt: now + win };
+  if (now > r.resetAt) { r.count = 0; r.resetAt = now + win; }
+  if (r.count >= 30) return res.status(429).json({ error: 'Límite alcanzado. Intenta en una hora.' });
+  r.count++;
+  requestCounts.set(ip, r);
+
+  const { system, messages } = req.body;
+  if (!messages || !Array.isArray(messages))
+    return res.status(400).json({ error: 'Formato inválido' });
+
+  try {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': ANTHROPIC_KEY,
+        'anthropic-version': '2023-06-01'
+      },
+      body: JSON.stringify({
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 600,
+        system: system || 'Eres un asistente experto en redes.',
+        messages: messages.slice(-10)
+      })
+    });
+    const data = await response.json();
+    res.json(data);
+  } catch (err) {
+    console.error('[IA]', err);
+    res.status(500).json({ error: 'Error interno' });
+  }
+});
+// ─────────────────────────────────────────────────────────────
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Servidor corriendo en http://localhost:${PORT}`);
