@@ -1,5 +1,5 @@
 (function () {
-  const HF_MODEL = "https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.2";
+  
 
   const SYSTEM_PROMPT = `Eres un asistente experto en redes de computadoras, específicamente en el ponchado de cables Ethernet. Ayudas con:
 - Estándares T568A y T568B
@@ -208,42 +208,23 @@ Responde siempre en español, de forma clara y concisa. Máximo 3 párrafos.`;
 
     if (!isOpen) { isOpen = true; panel.classList.add("open"); }
 
-    // Construir prompt para Mistral
-    let prompt = `<s>[INST] ${SYSTEM_PROMPT}\n\n`;
-    const history = conversationHistory.slice(-6);
-    for (let i = 0; i < history.length - 1; i++) {
-      const m = history[i];
-      if (m.role === "user") prompt += `${m.content} [/INST] `;
-      else prompt += `${m.content} </s><s>[INST] `;
-    }
-    prompt += `${text} [/INST]`;
-
     try {
-      const res = await fetch(HF_MODEL, {
+      const res = await fetch("/api/ai", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          inputs: prompt,
-          parameters: { max_new_tokens: 300, temperature: 0.7, return_full_text: false }
-        })
+          system: SYSTEM_PROMPT,
+          messages: conversationHistory,
+        }),
       });
 
       if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
-        if (res.status === 503) {
-          hideLoading();
-          addMessage("⏳ El modelo está cargando (puede tardar ~20 segundos la primera vez). Intenta de nuevo en un momento.", "bot");
-        } else {
-          throw new Error(err.error || `Error ${res.status}`);
-        }
-        return;
+        const e = await res.json().catch(() => ({}));
+        throw new Error(e.error || "Error " + res.status);
       }
 
       const data = await res.json();
-      let reply = data[0]?.generated_text || "No pude obtener respuesta.";
-      // Limpiar texto repetido del prompt si viene incluido
-      reply = reply.replace(/^\s*\[\/INST\]\s*/g, "").trim();
-
+      const reply = data.content?.[0]?.text || "Sin respuesta del servidor.";
       conversationHistory.push({ role: "assistant", content: reply });
       hideLoading();
       addMessage(reply, "bot");
