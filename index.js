@@ -89,8 +89,8 @@ app.post('/api/comentarios', verificarToken, async (req, res) => {
   else res.status(500).json({ error: 'Error guardando comentario' });
 });
 
-// ── ASISTENTE IA (Google Gemini - Gratis) ────────────────────
-const GEMINI_KEY = process.env.GEMINI_API_KEY;
+// ── ASISTENTE IA (Groq - Gratis) ─────────────────────────────
+const GROQ_KEY = process.env.GROQ_API_KEY;
 
 const requestCounts = new Map();
 app.post('/api/ai', async (req, res) => {
@@ -107,35 +107,28 @@ app.post('/api/ai', async (req, res) => {
   if (!messages || !Array.isArray(messages))
     return res.status(400).json({ error: 'Formato inválido' });
 
-  // Convertir historial al formato de Gemini
-  const geminiMessages = messages.slice(-10).map(m => ({
-    role: m.role === 'assistant' ? 'model' : 'user',
-    parts: [{ text: m.content }]
-  }));
-
   try {
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key=${GEMINI_KEY}`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [
-            { role: 'user', parts: [{ text: system || 'Eres un asistente experto en redes de computadoras y ponchado de cables Ethernet. Responde siempre en español.' }] },
-            { role: 'model', parts: [{ text: 'Entendido, estoy listo para ayudarte.' }] },
-            ...geminiMessages
-          ],
-          generationConfig: { maxOutputTokens: 600 }
-        })
-      }
-    );
+    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${GROQ_KEY}`
+      },
+      body: JSON.stringify({
+        model: 'llama3-8b-8192',
+        max_tokens: 600,
+        messages: [
+          { role: 'system', content: system || 'Eres un asistente experto en redes de computadoras y ponchado de cables Ethernet. Responde siempre en español.' },
+          ...messages.slice(-10)
+        ]
+      })
+    });
     const data = await response.json();
     if (!response.ok) {
-      console.error('[IA] Gemini error:', JSON.stringify(data));
-      return res.status(response.status).json({ error: data.error?.message || 'Error de Gemini' });
+      console.error('[IA] Groq error:', JSON.stringify(data));
+      return res.status(response.status).json({ error: data.error?.message || 'Error de Groq' });
     }
-    // Devolver en formato compatible con el frontend
-    const text = data.candidates?.[0]?.content?.parts?.[0]?.text || 'Sin respuesta.';
+    const text = data.choices?.[0]?.message?.content || 'Sin respuesta.';
     res.json({ content: [{ text }] });
   } catch (err) {
     console.error('[IA] catch:', err.message);
@@ -143,6 +136,7 @@ app.post('/api/ai', async (req, res) => {
   }
 });
 // ─────────────────────────────────────────────────────────────
+
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
